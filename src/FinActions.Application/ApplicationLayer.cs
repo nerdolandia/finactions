@@ -1,4 +1,5 @@
 using System.Reflection;
+using FinActions.Domain.Identity;
 using FinActions.Domain.Shared.DependencyInjection;
 using FinActions.Infrastructure.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,10 @@ public static class ApplicationLayer
         {
             options.UseNpgsql(configuration.GetConnectionString("Default"));
         });
+
+        services.AddIdentityCore<AppUser>()
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<FinActionsDbContext>();
 
         return services;
     }
