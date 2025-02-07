@@ -1,4 +1,5 @@
 using System.Reflection;
+using FinActions.Application.Identity.Services;
 using FinActions.Domain.Identity;
 using FinActions.Domain.Shared.DependencyInjection;
 using FinActions.Infrastructure.EntityFrameworkCore;
@@ -20,9 +21,14 @@ public static class ApplicationLayer
             options.UseNpgsql(configuration.GetConnectionString("Default"));
         });
 
-        services.AddIdentityCore<AppUser>()
+        services.AddIdentity<AppUser, IdentityRole<Guid>>()
             .AddRoles<IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<FinActionsDbContext>();
+            .AddEntityFrameworkStores<FinActionsDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddTransient<IEmailSender<AppUser>, DefaultMessageEmailSender>();
+
+        services.AddHttpContextAccessor();
 
         return services;
     }
@@ -37,7 +43,29 @@ public static class ApplicationLayer
 
         foreach (var dependency in dependencies)
         {
-            var contracts = dependency.GetInterfaces();
+            var contracts = dependency
+                                .GetInterfaces()
+                                .Where(x => x != singleton
+                                        && x != scoped
+                                        && x != transient);
+
+            if (!contracts.Any())
+            {
+                if (singleton.IsAssignableFrom(dependency))
+                {
+                    services.AddSingleton(dependency);
+                }
+                else if (scoped.IsAssignableFrom(dependency))
+                {
+                    services.AddScoped(dependency);
+                }
+                else if (transient.IsAssignableFrom(dependency))
+                {
+                    services.AddTransient(dependency);
+                }
+                continue;
+            }
+
             foreach (var contract in contracts)
             {
                 if (singleton.IsAssignableFrom(dependency) && singleton.IsAssignableFrom(contract))

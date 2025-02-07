@@ -5,7 +5,7 @@
     <ProjectReference Include="..\FinActions.Infrastructure\FinActions.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
