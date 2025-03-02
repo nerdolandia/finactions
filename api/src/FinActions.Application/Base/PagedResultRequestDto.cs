@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinActions.Application.Base;
 
-public class PagedResultRequestDto
+public abstract class PagedResultRequestDto
 {
     [Range(0, int.MaxValue)]
     public int SkipCount { get; set; }
