@@ -1,4 +1,5 @@
 using FinActions.Domain.Identity;
+using FinActions.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,10 @@ public class FinActionsDbContext : IdentityDbContext<AppUser,
                                         IdentityRoleClaim<Guid>,
                                         IdentityUserToken<Guid>>
 {
+    public DbSet<ContaBancaria> ContaBancarias { get; set; }
+    public DbSet<Movimentacao> Movimentacoes { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
+
     public FinActionsDbContext(DbContextOptions options) : base(options)
     {
     }
@@ -42,4 +47,5 @@ public class FinActionsDbContext : IdentityDbContext<AppUser,
 
         builder.ConfigureFinActions();
     }
+
 }
