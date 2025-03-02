@@ -24,9 +24,10 @@ app.UseSwaggerUI(x =>
     x.SwaggerEndpoint("/openapi/v1.json", "FinActions.API");
 });
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseCustomCors();
+app.UseCors(x => { x.AllowAnyHeader(); x.AllowAnyOrigin(); x.AllowAnyMethod(); });
+
 
 app.UseAuthentication();
 
