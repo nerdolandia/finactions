@@ -38,13 +38,24 @@ namespace FinActions.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(150)
                         .IsUnicode(false)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Id")
+                        .IsUnique();
 
                     b.ToTable("Categorias", (string)null);
                 });
@@ -65,6 +76,11 @@ namespace FinActions.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -77,7 +93,13 @@ namespace FinActions.Infrastructure.Migrations
                     b.Property<byte>("TipoConta")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Id")
+                        .IsUnique();
 
                     b.ToTable("ContasBancarias", (string)null);
                 });
@@ -194,12 +216,20 @@ namespace FinActions.Infrastructure.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(300)");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Tag")
                         .IsUnicode(false)
                         .HasColumnType("text");
 
                     b.Property<byte>("TipoMovimentacao")
                         .HasColumnType("smallint");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("ValorMovimentado")
                         .HasColumnType("money");
@@ -209,6 +239,9 @@ namespace FinActions.Infrastructure.Migrations
                     b.HasIndex("CategoriaId");
 
                     b.HasIndex("ContaBancariaId");
+
+                    b.HasIndex("UserId", "Id")
+                        .IsUnique();
 
                     b.ToTable("Movimentacoes", (string)null);
                 });
@@ -366,6 +399,28 @@ namespace FinActions.Infrastructure.Migrations
                     b.ToTable("UsersTokens", (string)null);
                 });
 
+            modelBuilder.Entity("FinActions.Domain.Categorias.Categoria", b =>
+                {
+                    b.HasOne("FinActions.Domain.Identity.AppUser", "User")
+                        .WithMany("Categorias")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FinActions.Domain.ContasBancarias.ContaBancaria", b =>
+                {
+                    b.HasOne("FinActions.Domain.Identity.AppUser", "User")
+                        .WithMany("ContasBancarias")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FinActions.Domain.Movimentacoes.Movimentacao", b =>
                 {
                     b.HasOne("FinActions.Domain.Categorias.Categoria", "Categoria")
@@ -380,9 +435,17 @@ namespace FinActions.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("FinActions.Domain.Identity.AppUser", "User")
+                        .WithMany("Movimentacoes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Categoria");
 
                     b.Navigation("ContaBancaria");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -443,6 +506,15 @@ namespace FinActions.Infrastructure.Migrations
 
             modelBuilder.Entity("FinActions.Domain.ContasBancarias.ContaBancaria", b =>
                 {
+                    b.Navigation("Movimentacoes");
+                });
+
+            modelBuilder.Entity("FinActions.Domain.Identity.AppUser", b =>
+                {
+                    b.Navigation("Categorias");
+
+                    b.Navigation("ContasBancarias");
+
                     b.Navigation("Movimentacoes");
                 });
 #pragma warning restore 612, 618
