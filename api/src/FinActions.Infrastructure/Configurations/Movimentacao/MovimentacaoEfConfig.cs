@@ -1,0 +1,43 @@
+using FinActions.Domain.Movimentacoes;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace FinActions.Infrastructure.Configurations;
+
+public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
+{
+    public void Configure(EntityTypeBuilder<Movimentacao> builder)
+    {
+        builder.ToTable("Movimentacoes");
+
+        builder.HasOne(x => x.Categoria)
+                .WithMany(x => x.Movimentacoes)
+                .HasForeignKey(x => x.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+        builder.HasOne(x => x.ContaBancaria)
+                .WithMany(x => x.Movimentacoes)
+                .HasForeignKey(x => x.ContaBancariaId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+        builder.Property(x => x.DataCriacao)
+                .HasDefaultValueSql("NOW()");
+
+        builder.Property(x => x.DataModificacao)
+                .ValueGeneratedOnUpdate()
+                .HasDefaultValueSql("NOW()");
+
+        builder.Property(x => x.Descricao)
+                .HasMaxLength(300)
+                .IsRequired();
+
+        builder.Property(x => x.TipoMovimentacao)
+                .IsRequired();
+
+        builder.Property(x => x.ValorMovimentado)
+                .HasColumnType("money")
+                .IsRequired();
+    }
+}

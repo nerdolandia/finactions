@@ -3,6 +3,7 @@ using System;
 using FinActions.Infrastructure.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinActions.Infrastructure.Migrations
 {
     [DbContext(typeof(FinActionsDbContext))]
-    partial class FinActionsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250303034525_AddCategorias")]
+    partial class AddCategorias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace FinActions.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FinActions.Domain.Categorias.Categoria", b =>
+            modelBuilder.Entity("FinActions.Domain.Categoria", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,7 +52,7 @@ namespace FinActions.Infrastructure.Migrations
                     b.ToTable("Categorias", (string)null);
                 });
 
-            modelBuilder.Entity("FinActions.Domain.ContasBancarias.ContaBancaria", b =>
+            modelBuilder.Entity("FinActions.Domain.ContaBancaria", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,8 +77,8 @@ namespace FinActions.Infrastructure.Migrations
                     b.Property<decimal>("Saldo")
                         .HasColumnType("money");
 
-                    b.Property<byte>("TipoConta")
-                        .HasColumnType("smallint");
+                    b.Property<int>("TipoConta")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -157,60 +160,6 @@ namespace FinActions.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("FinActions.Domain.Movimentacoes.Movimentacao", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CategoriaId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ContaBancariaId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Cor")
-                        .IsUnicode(false)
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("DataCriacao")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<DateTimeOffset?>("DataModificacao")
-                        .ValueGeneratedOnUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<DateTimeOffset>("DataMovimentacao")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<string>("Tag")
-                        .IsUnicode(false)
-                        .HasColumnType("text");
-
-                    b.Property<byte>("TipoMovimentacao")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("ValorMovimentado")
-                        .HasColumnType("money");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoriaId");
-
-                    b.HasIndex("ContaBancariaId");
-
-                    b.ToTable("Movimentacoes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -366,25 +315,6 @@ namespace FinActions.Infrastructure.Migrations
                     b.ToTable("UsersTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FinActions.Domain.Movimentacoes.Movimentacao", b =>
-                {
-                    b.HasOne("FinActions.Domain.Categorias.Categoria", "Categoria")
-                        .WithMany("Movimentacoes")
-                        .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FinActions.Domain.ContasBancarias.ContaBancaria", "ContaBancaria")
-                        .WithMany("Movimentacoes")
-                        .HasForeignKey("ContaBancariaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Categoria");
-
-                    b.Navigation("ContaBancaria");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -434,16 +364,6 @@ namespace FinActions.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("FinActions.Domain.Categorias.Categoria", b =>
-                {
-                    b.Navigation("Movimentacoes");
-                });
-
-            modelBuilder.Entity("FinActions.Domain.ContasBancarias.ContaBancaria", b =>
-                {
-                    b.Navigation("Movimentacoes");
                 });
 #pragma warning restore 612, 618
         }

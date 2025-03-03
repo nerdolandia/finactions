@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FinActions.Infrastructure.EntityFrameworkCore;
 public class FinActionsDbContextFactory : IDesignTimeDbContextFactory<FinActionsDbContext>
