@@ -28,40 +28,53 @@ public class FinActionsPermissionsDataSeed : IDataSeedContributor
     public async Task SeedDataAsync()
     {
         var adminRole = new IdentityRole<Guid>(FinActionsRolesConsts.Administrador.GetDisplayName());
-        if (!(await _roleManager.CreateAsync(adminRole)).Succeeded)
+        if (!await _roleManager.RoleExistsAsync(adminRole.Name)
+            && !(await _roleManager.CreateAsync(adminRole)).Succeeded)
         {
             var erroCriarRole = "Algo de errado, não está certo com a role!";
             _logger.LogError("{message}", erroCriarRole);
             throw new Exception(erroCriarRole);
         }
+        adminRole = await _roleManager.FindByNameAsync(FinActionsRolesConsts.Administrador.GetDisplayName());
 
-        var claims = new Claim[]
-        {
-            new Claim(
-                FinActionsPermissions.UsuarioConsultar.ToString(),
-                PermissionsConsts.Allow,
-                ClaimValueTypes.String),
-            new Claim(
-                FinActionsPermissions.UsuarioCriar.ToString(),
-                PermissionsConsts.Allow,
-                ClaimValueTypes.String),
-            new Claim(
-                FinActionsPermissions.UsuarioEditar.ToString(),
-                PermissionsConsts.Allow,
-                ClaimValueTypes.String)
-        };
+        var claims = new List<Claim>();
 
-        foreach (var claim in claims)
+        foreach (var permission in PermissionsConsts.Permissions)
         {
-            if (!(await _roleManager.AddClaimAsync(adminRole, claim)).Succeeded)
-            {
-                var erroCriarRoleClaims = "Algo de errado, não está certo com as role claims!";
-                _logger.LogError("{message}", erroCriarRoleClaims);
-                throw new Exception(erroCriarRoleClaims);
-            }
+            claims.Add(new(permission.ToString(), PermissionsConsts.Allow, ClaimValueTypes.String));
         }
 
         var adminUser = await _userManager.FindByNameAsync(AppUserConsts.AdminUserNameDefaultValue);
+        var roleClaims = await _roleManager.GetClaimsAsync(adminRole);
+        var userClaims = await _userManager.GetClaimsAsync(adminUser);
+
+        // TODO: Sim, estou recriando os claims a cada execução do DbMigrator, depois melhoramos isso
+        foreach (var claim in claims)
+        {
+            if (!roleClaims.Any(x => x.Type == claim.Type))
+            {
+                if (!(await _roleManager.AddClaimAsync(adminRole, claim)).Succeeded)
+                {
+                    var erroCriarRoleClaims = "Algo de errado, não está certo com as role claims!";
+                    _logger.LogError("{message}", erroCriarRoleClaims);
+                    throw new Exception(erroCriarRoleClaims);
+                }
+                continue;
+            }
+
+            if (!userClaims.Any(x => x.Type == claim.Type))
+            {
+                if (!(await _userManager.AddClaimAsync(adminUser, claim)).Succeeded)
+                {
+                    var erroCriarUserClaims = "Algo de errado, não está certo com as users claims!";
+                    _logger.LogError("{message}", erroCriarUserClaims);
+                    throw new Exception(erroCriarUserClaims);
+                }
+                continue;
+            }
+
+        }
+
         await _userManager.AddToRoleAsync(adminUser, FinActionsRolesConsts.Administrador.GetDisplayName());
     }
 
