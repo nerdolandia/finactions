@@ -1,8 +1,10 @@
 using System.Reflection;
+using FinActions.Application.Identity.Handlers;
 using FinActions.Application.Identity.Services;
 using FinActions.Domain.Identity;
 using FinActions.Domain.Shared.DependencyInjection;
 using FinActions.Infrastructure.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +28,7 @@ public static class ApplicationLayer
             .AddEntityFrameworkStores<FinActionsDbContext>()
             .AddDefaultTokenProviders();
 
+        services.AddSingleton<IAuthorizationHandler, ClaimAuthorizationHandler>();
         services.AddTransient<IEmailSender<AppUser>, DefaultMessageEmailSender>();
 
         services.AddHttpContextAccessor();

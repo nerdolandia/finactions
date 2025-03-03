@@ -1,4 +1,4 @@
-namespace FinActions.Application.Base;
+namespace FinActions.Application.Base.Responses;
 
 public record struct PagedResultDto<T>
 {

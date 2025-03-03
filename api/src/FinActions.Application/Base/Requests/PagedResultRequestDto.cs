@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FinActions.Application.Base;
+namespace FinActions.Application.Base.Requests;
 
 public abstract class PagedResultRequestDto
 {

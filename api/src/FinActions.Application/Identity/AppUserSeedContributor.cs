@@ -1,4 +1,5 @@
 using FinActions.Domain.Shared.Data.Seeds;
+using FinActions.Domain.Shared.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
@@ -6,21 +7,18 @@ namespace FinActions.Domain.Identity;
 
 public class AppUserSeedContributor : IDataSeedContributor
 {
-    private const string AdminEmailDefaultValue = "admin@finactions.com.br";
-    private const string AdminUserNameDefaultValue = "admin";
-    private const string AdminPasswordDefaultValue = "1q2w3E*";
+    private const string AdminEmailDefaultValue = AppUserConsts.AdminEmailDefaultValue;
+    private const string AdminUserNameDefaultValue = AppUserConsts.AdminUserNameDefaultValue;
+    private const string AdminPasswordDefaultValue = AppUserConsts.AdminPasswordDefaultValue;
 
     private readonly UserManager<AppUser> _userManager;
-    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly ILogger<AppUserSeedContributor> _logger;
 
     public AppUserSeedContributor(
         UserManager<AppUser> userManager,
-        RoleManager<IdentityRole<Guid>> roleManager,
         ILogger<AppUserSeedContributor> logger)
     {
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
     }
 

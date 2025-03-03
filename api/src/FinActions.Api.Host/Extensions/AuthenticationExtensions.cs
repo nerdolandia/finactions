@@ -1,6 +1,8 @@
 using System.Text;
+using FinActions.Application.Identity.Requirements;
 using FinActions.Domain.Shared.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -55,6 +57,15 @@ public static class AuthenticationExtensions
         }).AddJwtBearer(options =>
         {
             options.TokenValidationParameters = tokenValidationParameters;
+        });
+
+        services.AddAuthorization(options => {
+            foreach(var permission in PermissionsConsts.Permissions)
+            {
+                options.AddPolicy(
+                    permission.ToString(),
+                    policy => policy.Requirements.Add(new ClaimRequirement(permission.ToString())));
+            }
         });
     }
 }

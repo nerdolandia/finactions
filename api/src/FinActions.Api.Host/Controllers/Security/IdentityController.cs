@@ -3,9 +3,13 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using FinActions.Application.Identity.Contracts;
+using FinActions.Application.Base.Requests;
+using FinActions.Application.Base.Responses;
+using FinActions.Application.Identity.Contracts.Requests;
+using FinActions.Application.Identity.Contracts.Responses;
 using FinActions.Application.Identity.Services;
 using FinActions.Domain.Identity;
+using FinActions.Domain.Shared.Security;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -19,6 +23,7 @@ namespace FinActions.Api.Host.Controllers.Identity;
 
 [ApiController]
 [Area("identity")]
+[Authorize]
 [Route("api/identity")]
 public class IdentityController : ControllerBase
 {
@@ -46,8 +51,8 @@ public class IdentityController : ControllerBase
         _identityService = identityService;
     }
 
-    [Authorize]
     [HttpPost("register")]
+    [Authorize(nameof(FinActionsPermissions.UsuarioCriar))]
     public async Task<Results<Ok, ValidationProblem>> Register([FromBody] RegisterRequest registration)
     {
         if (!_userManager.SupportsUserEmail)
@@ -78,15 +83,28 @@ public class IdentityController : ControllerBase
         return TypedResults.Ok();
     }
 
+    [HttpGet("user")]
+    [Authorize(nameof(FinActionsPermissions.UsuarioConsultar))]
+    public async Task<Results<Ok<PagedResultDto<AppUserDto>>, ProblemHttpResult>>
+        GetListAsync([FromQuery] GetAppUserDto login)
+        => await _identityService.GetListAsync(login);
+
+    [HttpGet("user/{id:guid}/permissions")]
+    [Authorize(nameof(FinActionsPermissions.UsuarioConsultar))]
+    public async Task<Results<Ok<PermissionsDto>, ProblemHttpResult>> GetPermissionsAsync([FromRoute][Required] Guid id)
+        => await _identityService.GetPermissionsAsync(id);
+
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<Results<Ok<AccessTokenResponse>, ProblemHttpResult>>
         LoginAsync([FromBody] LoginRequestDto login)
         => await _identityService.LoginAsync(login);
 
     [HttpPost("refresh")]
+    [AllowAnonymous]
     public async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
         Refresh([FromBody] RefreshRequest refreshRequest)
-        => await _identityService.Refresh(refreshRequest);
+        => await _identityService.RefreshAsync(refreshRequest);
 
     [NonAction]
     [HttpPost("resendConfirmationEmail")]
@@ -276,6 +294,7 @@ public class IdentityController : ControllerBase
     }
 
     [HttpGet("manage/info")]
+    [Authorize(nameof(FinActionsPermissions.UsuarioCriar))]
     public async Task<Results<Ok<InfoResponse>, ValidationProblem, NotFound>> GetLoginInformation()
     {
         if (await _userManager.GetUserAsync(HttpContext.User) is not { } user)
