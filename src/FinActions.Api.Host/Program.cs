@@ -1,19 +1,23 @@
 using FinActions.Api.Host.Extensions;
 using FinActions.Api.Host.OpenApi;
 using FinActions.Application;
+using Serilog;
 
+Console.WriteLine("Starting FinActions.Api.Host");
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddAuthentication(builder.Configuration);
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-});
+builder.Services
+    .AddApplication(builder.Configuration)
+    .AddAuthentication(builder.Configuration)
+    .AddAutoMapper(typeof(FinActionsMappingProfile))
+    .AddSerilogFromAppSettings(builder.Configuration)
+    .AddOpenApi(options =>
+    {
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+    })
+    .AddControllers();
 
 var app = builder.Build();
 
