@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using AutoMapper;
 using FinActions.Application.Base.Requests;
 using FinActions.Application.Base.Responses;
 using FinActions.Application.Identity.Contracts.Requests;
@@ -26,19 +27,22 @@ public class IdentityService : IIdentityService
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly JwtOptions _jwtOptions;
     private readonly FinActionsDbContext _context;
+    private readonly IMapper _mapper;
 
     public IdentityService(
         UserManager<AppUser> userManager,
         IOptions<JwtOptions> jwtOptions,
         SignInManager<AppUser> signInManager,
         RoleManager<IdentityRole<Guid>> roleManager,
-        FinActionsDbContext context)
+        FinActionsDbContext context,
+        IMapper mapper)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions.Value;
         _signInManager = signInManager;
         _roleManager = roleManager;
         _context = context;
+        _mapper = mapper;
     }
 
 
@@ -179,12 +183,10 @@ public class IdentityService : IIdentityService
                                .Take(request.MaxResultCount > 100 ? 100 : request.MaxResultCount)
                                .ToListAsync();
 
-        var dtos = entities.Select(x => new AppUserDto(x.UserName, x.Email)).ToList();
-
         var pagedResult = new PagedResultDto<AppUserDto>()
         {
             TotalCount = totalCount,
-            Items = dtos
+            Items = _mapper.Map<List<AppUser>, List<AppUserDto>>(entities)
         };
 
         return TypedResults.Ok(pagedResult);
@@ -196,7 +198,7 @@ public class IdentityService : IIdentityService
                             .Where(x => x.UserId == userId)
                             .Select(x => x.ClaimType)
                             .ToHashSetAsync();
-        
+
         return TypedResults.Ok(new PermissionsDto()
         {
             Permissions = claims
