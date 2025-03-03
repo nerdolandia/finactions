@@ -10,7 +10,7 @@ using AutoMapper;
 using CurrentDomain = FinActions.Domain.Categorias;
 
 namespace FinActions.Application.Categoria.Services;
-public class CategoriaService : IBaseService<CategoriaResponseDto, GetCategoriaRequestDto, PostCategoriaRequestDto>
+public class CategoriaService : ICategoriaService
 {
     private readonly FinActionsDbContext _context;
     private readonly IMapper _mapper;

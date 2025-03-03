@@ -8,13 +8,8 @@ namespace FinActions.Application.Categoria.Services;
 public interface ICategoriaService : ITransientDependency
 {
     Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto);
-
-
     Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> ObterPorId(Guid id);
-
-    Task<Results<Created<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto);
-
+    Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto);
     Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto);
-    
     Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id);
 }
