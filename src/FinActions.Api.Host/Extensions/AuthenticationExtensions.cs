@@ -10,7 +10,7 @@ namespace FinActions.Api.Host.Extensions;
 
 public static class AuthenticationExtensions
 {
-    public static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtAppSettingOptions = configuration.GetSection(JwtOptions.SectionName);
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetSection("Jwt:SecurityKey").Value));
@@ -67,5 +67,7 @@ public static class AuthenticationExtensions
                     policy => policy.Requirements.Add(new ClaimRequirement(permission.ToString())));
             }
         });
+
+        return services;
     }
 }
