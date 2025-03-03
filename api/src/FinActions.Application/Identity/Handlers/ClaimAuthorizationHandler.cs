@@ -41,22 +41,22 @@ public class ClaimAuthorizationHandler : AuthorizationHandler<ClaimRequirement>
         }
 
         _logger.LogDebug(
-            "Verificando se o usuário {userName}, possui a permissão {policyName}",
+            "Verificando se o usuário ID: {userId}, userName: {userName}, possui a permissão {policyName}",
+            user.Id,
             user.UserName,
             requirement.PolicyName);
-
 
         if (await dbContext.UserClaims
                     .AsNoTracking()
                     .AnyAsync(c => c.UserId == user.Id
                                 && c.ClaimType == requirement.PolicyName))
         {
-            _logger.LogDebug("Usuário {userName} tem a permissão necessária!", user.UserName);
+            _logger.LogDebug("Usuário ID: {userId}, userName: {userName} tem a permissão necessária!", user.Id, user.UserName);
             context.Succeed(requirement);
             return;
         }
 
-        _logger.LogDebug("Usuário {userName} não possui a a permissão necessária! :C", user.UserName);
+        _logger.LogDebug("Usuário ID: {userId}, userName: {userName}não possui a a permissão necessária :C", user.Id, user.UserName);
         context.Fail();
     }
 }
