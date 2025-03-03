@@ -10,10 +10,18 @@ public class CategoriaEfConfig : IEntityTypeConfiguration<Categoria>
         builder.ToTable("Categorias");
 
         builder.Property(x => x.DataCriacao)
-                .HasDefaultValue(DateTimeOffset.Now);
+                .HasDefaultValue(DateTimeOffset.Now)
+                .IsRequired();
 
         builder.Property(x => x.DataModificacao)
                 .ValueGeneratedOnUpdate()
                 .HasDefaultValue(DateTimeOffset.Now);
+
+        builder.Property(x => x.Id)
+                .IsRequired();
+
+        builder.Property(x => x.Nome)
+                .HasMaxLength(150)
+                .IsRequired();
     }
 }

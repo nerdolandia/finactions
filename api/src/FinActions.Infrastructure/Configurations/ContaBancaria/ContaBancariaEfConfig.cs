@@ -16,5 +16,15 @@ public class ContaBancariaEfConfig : IEntityTypeConfiguration<ContaBancaria>
         builder.Property(x => x.DataModificacao)
                 .ValueGeneratedOnUpdate()
                 .HasDefaultValue(DateTimeOffset.Now);
+
+        builder.Property(x => x.Nome)
+                .HasMaxLength(150)
+                .IsRequired();
+
+        builder.Property(x => x.Saldo)
+                .IsRequired();
+
+        builder.Property(x => x.TipoConta)
+                .IsRequired();
     }
 }

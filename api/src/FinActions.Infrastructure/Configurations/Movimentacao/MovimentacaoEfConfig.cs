@@ -12,21 +12,29 @@ public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
 
         builder.HasOne(x => x.ContaBancaria)
                 .WithOne(x => x.Movimentacao)
-                .HasForeignKey<Movimentacao>(x => x.CategoriaId);
+                .HasForeignKey<Movimentacao>(x => x.CategoriaId)
+                .IsRequired();
 
         builder.HasOne(x => x.ContaBancaria)
                 .WithOne(x => x.Movimentacao)
-                .HasForeignKey<Movimentacao>(x => x.ContaBancariaId);
-
-        builder.Property(x => x.Descricao)
-                .HasMaxLength(300);
+                .HasForeignKey<Movimentacao>(x => x.ContaBancariaId)
+                .IsRequired();
 
         builder.Property(x => x.DataCriacao)
-        .HasDefaultValue(DateTimeOffset.Now);
+            .HasDefaultValue(DateTimeOffset.Now);
 
         builder.Property(x => x.DataModificacao)
-                .ValueGeneratedOnUpdate()
-                .HasDefaultValue(DateTimeOffset.Now);
+            .ValueGeneratedOnUpdate()
+            .HasDefaultValue(DateTimeOffset.Now);
 
+        builder.Property(x => x.Descricao)
+                .HasMaxLength(300)
+                .IsRequired();
+
+        builder.Property(x => x.TipoMovimentacao)
+                .IsRequired();
+
+        builder.Property(x => x.ValorMovimentado)
+                .IsRequired();
     }
 }

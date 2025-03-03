@@ -1,15 +1,15 @@
 namespace FinActions.Domain;
-sealed public class Movimentacao : IBaseEntity
+public sealed class Movimentacao : IBaseEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; }
     public DateTimeOffset? DataModificacao { get; set; }
     public DateTimeOffset DataCriacao { get; set; }
-    public required TipoMovimentacaoEnum TipoMovimentacao { get; set; }
-    public required string Descricao { get; set; }
-    public string? Tag { get; set; }
-    public string? Cor { get; set; }
-    public required decimal ValorMovimentado { get; set; }
-    public required DateTimeOffset DataMovimentacao { get; set; }
+    public TipoMovimentacaoEnum TipoMovimentacao { get; set; }
+    public string Descricao { get; set; }
+    public string Tag { get; set; }
+    public string Cor { get; set; }
+    public decimal ValorMovimentado { get; set; }
+    public DateTimeOffset DataMovimentacao { get; set; }
 
     public Guid ContaBancariaId { get; set; }
     public ContaBancaria ContaBancaria { get; set; }
