@@ -1,4 +1,4 @@
-namespace FinActions.Application.Identity.Contracts;
+namespace FinActions.Application.Identity.Contracts.Responses;
 
 public record struct PermissionsDto()
 {

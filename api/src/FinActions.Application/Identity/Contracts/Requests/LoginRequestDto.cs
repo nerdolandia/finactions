@@ -1,4 +1,4 @@
-namespace FinActions.Application.Identity.Contracts;
+namespace FinActions.Application.Identity.Contracts.Requests;
 
 public sealed class LoginRequestDto
 {

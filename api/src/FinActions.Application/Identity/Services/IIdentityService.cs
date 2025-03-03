@@ -1,5 +1,7 @@
-using FinActions.Application.Base;
-using FinActions.Application.Identity.Contracts;
+using FinActions.Application.Base.Requests;
+using FinActions.Application.Base.Responses;
+using FinActions.Application.Identity.Contracts.Requests;
+using FinActions.Application.Identity.Contracts.Responses;
 using FinActions.Domain.Shared.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http.HttpResults;

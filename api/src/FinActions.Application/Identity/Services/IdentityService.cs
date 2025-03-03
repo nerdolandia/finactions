@@ -1,7 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using FinActions.Application.Base;
-using FinActions.Application.Identity.Contracts;
+using FinActions.Application.Base.Requests;
+using FinActions.Application.Base.Responses;
+using FinActions.Application.Identity.Contracts.Requests;
+using FinActions.Application.Identity.Contracts.Responses;
 using FinActions.Domain.Identity;
 using FinActions.Domain.Shared.Security;
 using FinActions.Infrastructure.EntityFrameworkCore;

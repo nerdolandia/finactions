@@ -1,6 +1,6 @@
-using FinActions.Application.Base;
+using FinActions.Application.Base.Requests;
 
-namespace FinActions.Application.Identity.Contracts;
+namespace FinActions.Application.Identity.Contracts.Requests;
 
 public class GetAppUserDto : PagedResultRequestDto
 {
