@@ -1,4 +1,7 @@
-namespace FinActions.Domain;
+using FinActions.Domain.Categorias;
+using FinActions.Domain.ContasBancarias;
+
+namespace FinActions.Domain.Movimentacoes;
 public sealed class Movimentacao : IBaseEntity
 {
     public Guid Id { get; set; }

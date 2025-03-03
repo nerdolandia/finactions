@@ -1,4 +1,6 @@
-namespace FinActions.Domain;
+using FinActions.Domain.Movimentacoes;
+
+namespace FinActions.Domain.ContasBancarias;
 public sealed class ContaBancaria : IBaseEntity
 {
     public DateTimeOffset DataCriacao { get; set; }
@@ -7,5 +9,5 @@ public sealed class ContaBancaria : IBaseEntity
     public string Nome { get; set; }
     public TipoContaEnum TipoConta { get; set; }
     public decimal Saldo { get; set; }
-    public Movimentacao Movimentacao { get; set; }
+    public ICollection<Movimentacao> Movimentacoes { get; set; } = [];
 }

@@ -1,4 +1,4 @@
-using FinActions.Domain;
+using FinActions.Domain.Categorias;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,12 +10,12 @@ public class CategoriaEfConfig : IEntityTypeConfiguration<Categoria>
         builder.ToTable("Categorias");
 
         builder.Property(x => x.DataCriacao)
-                .HasDefaultValue(DateTimeOffset.Now)
+                .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
         builder.Property(x => x.DataModificacao)
                 .ValueGeneratedOnUpdate()
-                .HasDefaultValue(DateTimeOffset.Now);
+                .HasDefaultValueSql("NOW()");
 
         builder.Property(x => x.Id)
                 .IsRequired();

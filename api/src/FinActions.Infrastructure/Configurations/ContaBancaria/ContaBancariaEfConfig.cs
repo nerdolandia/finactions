@@ -1,4 +1,4 @@
-using FinActions.Domain;
+using FinActions.Domain.ContasBancarias;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,17 +11,18 @@ public class ContaBancariaEfConfig : IEntityTypeConfiguration<ContaBancaria>
         builder.ToTable("ContasBancarias");
 
         builder.Property(x => x.DataCriacao)
-                .HasDefaultValue(DateTimeOffset.Now);
+                .HasDefaultValueSql("NOW()");
 
         builder.Property(x => x.DataModificacao)
                 .ValueGeneratedOnUpdate()
-                .HasDefaultValue(DateTimeOffset.Now);
+                .HasDefaultValueSql("NOW()");
 
         builder.Property(x => x.Nome)
                 .HasMaxLength(150)
                 .IsRequired();
 
         builder.Property(x => x.Saldo)
+                .HasColumnType("money")
                 .IsRequired();
 
         builder.Property(x => x.TipoConta)
