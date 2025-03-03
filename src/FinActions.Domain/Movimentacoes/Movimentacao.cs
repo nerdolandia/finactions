@@ -1,12 +1,10 @@
+using FinActions.Domain.Base;
 using FinActions.Domain.Categorias;
 using FinActions.Domain.ContasBancarias;
 
 namespace FinActions.Domain.Movimentacoes;
-public sealed class Movimentacao : IBaseEntity
+public sealed class Movimentacao : UserBaseEntity
 {
-    public Guid Id { get; set; }
-    public DateTimeOffset? DataModificacao { get; set; }
-    public DateTimeOffset DataCriacao { get; set; }
     public TipoMovimentacaoEnum TipoMovimentacao { get; set; }
     public string Descricao { get; set; }
     public string Tag { get; set; }

@@ -23,5 +23,14 @@ public class CategoriaEfConfig : IEntityTypeConfiguration<Categoria>
         builder.Property(x => x.Nome)
                 .HasMaxLength(150)
                 .IsRequired();
+
+        builder.HasOne(x => x.User)
+                .WithMany(x => x.Categorias)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+        builder.Property(x => x.IsDeleted)
+                .HasDefaultValue(false);
     }
 }
