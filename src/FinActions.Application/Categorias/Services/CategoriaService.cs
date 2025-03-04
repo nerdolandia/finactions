@@ -16,18 +16,20 @@ public class CategoriaService : ICategoriaService
 {
     private readonly FinActionsDbContext _context;
     private readonly IMapper _mapper;
+    private readonly ICategoriaValidator _validator;
 
-    public CategoriaService(FinActionsDbContext context, IMapper mapper)
+    public CategoriaService(FinActionsDbContext context, IMapper mapper, ICategoriaValidator validator)
     {
         _mapper = mapper;
         _context = context;
+        _validator = validator;
     }
 
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
-        var validation = new CategoriaValidationService(categoriaRequestDto, "Erro de validaçao da request de categorias");
-        var validationResult = validation.Validate();
-        if (!validation.IsValid)
+        _validator.ValidatorModel(categoriaRequestDto);
+        var validationResult = _validator.Validate();
+        if (!_validator.IsValid)
             return TypedResults.Problem(validationResult);
 
         var query = _context.Categorias
