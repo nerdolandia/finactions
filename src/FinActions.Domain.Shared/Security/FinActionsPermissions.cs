@@ -11,5 +11,15 @@ public enum FinActionsPermissions
     UsuarioCriar,
 
     [Display(Name = "Editar Usuários")]
-    UsuarioEditar
+    UsuarioEditar,
+    [Display(Name = "Consultar Categorias")]
+    CategoriaConsultar,
+
+    [Display(Name = "Criar Categorias")]
+    CategoriaCriar,
+
+    [Display(Name = "Editar Categorias")]
+    CategoriaEditar,
+    [Display(Name = "Remover Categorias")]
+    CategoriaRemover
 }
