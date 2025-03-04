@@ -59,7 +59,6 @@ public class FinActionsPermissionsDataSeed : IDataSeedContributor
                     _logger.LogError("{message}", erroCriarRoleClaims);
                     throw new Exception(erroCriarRoleClaims);
                 }
-                continue;
             }
 
             if (!userClaims.Any(x => x.Type == claim.Type))
@@ -70,7 +69,6 @@ public class FinActionsPermissionsDataSeed : IDataSeedContributor
                     _logger.LogError("{message}", erroCriarUserClaims);
                     throw new Exception(erroCriarUserClaims);
                 }
-                continue;
             }
 
         }
