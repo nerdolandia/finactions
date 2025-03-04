@@ -2,7 +2,7 @@ namespace FinActions.Application.Base;
 
 public abstract record BaseEntityDto
 {
-     Guid Id { get; init; }
-     DateTimeOffset? DataModificacao { get; init; }
-     DateTimeOffset DataCriacao { get; init; }
+    public Guid Id { get; init; }
+    public DateTimeOffset? DataModificacao { get; init; }
+    public DateTimeOffset DataCriacao { get; init; }
 }
