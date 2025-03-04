@@ -6,6 +6,7 @@ using FinActions.Application.Base.Responses;
 using FinActions.Application.Identity.Contracts.Requests;
 using FinActions.Application.Identity.Contracts.Responses;
 using FinActions.Domain.Identity;
+using FinActions.Domain.Shared.Identity;
 using FinActions.Domain.Shared.Security;
 using FinActions.Infrastructure.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -57,7 +58,11 @@ public class IdentityService : IIdentityService
             return TypedResults.Ok(response);
         }
 
-        return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+        return TypedResults.Problem(
+            title: AppUserConsts.ErroLoginTitle,
+            detail: AppUserConsts.ErroLoginDetail,
+            type: AppUserConsts.ErroLoginType,
+            statusCode: StatusCodes.Status401Unauthorized);
     }
 
     public async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
