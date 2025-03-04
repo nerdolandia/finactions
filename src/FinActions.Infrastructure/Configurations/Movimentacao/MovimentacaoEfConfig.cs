@@ -19,8 +19,7 @@ public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
         builder.HasOne(x => x.ContaBancaria)
                 .WithMany(x => x.Movimentacoes)
                 .HasForeignKey(x => x.ContaBancariaId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(x => x.DataCriacao)
                 .HasDefaultValueSql("NOW()");
@@ -39,5 +38,17 @@ public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
         builder.Property(x => x.ValorMovimentado)
                 .HasColumnType("money")
                 .IsRequired();
+
+        builder.HasOne(x => x.User)
+                .WithMany(x => x.Movimentacoes)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+        builder.HasIndex(x => new { x.UserId, x.Id })
+                .IsUnique();
+
+        builder.Property(x => x.IsDeleted)
+                .HasDefaultValue(false);
     }
 }

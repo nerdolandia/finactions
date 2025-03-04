@@ -27,5 +27,17 @@ public class ContaBancariaEfConfig : IEntityTypeConfiguration<ContaBancaria>
 
         builder.Property(x => x.TipoConta)
                 .IsRequired();
+
+        builder.HasOne(x => x.User)
+                .WithMany(x => x.ContasBancarias)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+        builder.HasIndex(x => new { x.UserId, x.Id })
+                .IsUnique();
+
+        builder.Property(x => x.IsDeleted)
+                .HasDefaultValue(false);
     }
 }

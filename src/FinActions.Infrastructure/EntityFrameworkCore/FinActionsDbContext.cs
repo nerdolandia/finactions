@@ -49,5 +49,4 @@ public class FinActionsDbContext : IdentityDbContext<AppUser,
 
         builder.ConfigureFinActions();
     }
-
 }

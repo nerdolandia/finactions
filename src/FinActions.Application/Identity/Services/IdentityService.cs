@@ -179,8 +179,8 @@ public class IdentityService : IIdentityService
         query = query.OrderBy(x => x.UserName);
 
         var totalCount = await query.CountAsync();
-        var entities = await query.Skip(request.SkipCount)
-                               .Take(request.MaxResultCount > 100 ? 100 : request.MaxResultCount)
+        var entities = await query.Skip(request.Skip)
+                               .Take(request.Take > 100 ? 100 : request.Take)
                                .ToListAsync();
 
         var pagedResult = new PagedResultDto<AppUserDto>()
