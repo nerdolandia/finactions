@@ -23,8 +23,6 @@ public class CategoriaService : ICategoriaService
         _context = context;
     }
 
-    // TODO: Validar se o tamanho do nome da categoria procurada não é maior que 150 caracteres
-    // validação de campos faço depois
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
         var validation = new CategoriaValidationService(categoriaRequestDto, "Erro de validaçao da request de categorias");

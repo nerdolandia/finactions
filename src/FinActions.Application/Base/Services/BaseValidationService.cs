@@ -1,7 +1,6 @@
 using FinActions.Application.Validations.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using FinActions.Domain.Shared.DependencyInjection;
 
 namespace FinActions.Application.Base.Services;
 
@@ -17,22 +16,27 @@ public abstract class BaseValidationService
         _validationObject = validationObject;
     }
 
-    public virtual BaseValidationService AddValidation<T>(Predicate<T> predicate, string mensagemErro)
+    public virtual BaseValidationService AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
     {
         if (!predicate((T)_validationObject))
         {
             IsValid = false;
-            _validationModel.errors.Add(mensagemErro);
+
+            if(_validationModel.errors.ContainsKey(campo))
+                _validationModel.errors[campo].Append(mensagemErro);
+            else
+                _validationModel.errors.Add(campo, new string[] {mensagemErro});
         }
 
         return this;
     }
 
     public virtual ProblemDetails Validate()
-        =>  new ProblemDetails
+        =>  new ValidationProblemDetails
         {
             Title = _validationModel.title,
             Status = StatusCodes.Status400BadRequest,
-            Detail = _validationModel.errors.Aggregate("", (acc, err) => $"{acc}\n{err}")
+            Detail = $"Erro de validações em {_validationModel.errors.Count} itens",
+            Errors = _validationModel.errors
         };
 }

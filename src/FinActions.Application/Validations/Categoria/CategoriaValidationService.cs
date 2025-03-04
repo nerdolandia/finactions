@@ -26,12 +26,20 @@ public class CategoriaValidationService : BaseValidationService
     }
     private void ValidateGetRequest()
     {
-        base.AddValidation<GetCategoriaRequestDto>(x => x.Nome.Length > 150, "Número de caractéres para o nome da categoria ultrapassa os limites")
-            .AddValidation<GetCategoriaRequestDto>(x => x.Take == 0, "Número de categorias escolhidas para filtro está zerada");
+        var requestObject = _validationObject as GetCategoriaRequestDto;
+        base.AddValidation<GetCategoriaRequestDto>(x => x.Nome.Length > 150, 
+                                                    "Número de caractéres para o nome da categoria ultrapassa os limites",
+                                                    nameof(requestObject.Nome))
+            .AddValidation<GetCategoriaRequestDto>(x => x.Take == 0, 
+                                                    "Número de categorias escolhidas para filtro está zerada",
+                                                    nameof(requestObject.Take));
     }
 
     private void ValidatePostRequest()
     {
-        base.AddValidation<PostCategoriaRequestDto>(x => x.Nome.Length > 150, "Número de caractéres para o nome da categoria ultrapassa os limites");
+        var requestObject = _validationObject as PostCategoriaRequestDto;
+        base.AddValidation<PostCategoriaRequestDto>(x => x.Nome.Length > 150, 
+                                                    "Número de caractéres para o nome da categoria ultrapassa os limites",
+                                                    nameof(requestObject.Nome));
     }
 }
