@@ -1,4 +1,3 @@
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using FinActions.Application.Categorias.Responses;
 using FinActions.Application.Base.Responses;
 using FinActions.Domain.Shared.Security;
 using FinActions.Domain.Shared.Extensions;
-using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 
 namespace FinActions.Api.Host.Controllers.Categorias;
@@ -30,14 +28,14 @@ public class CategoriaController : ControllerBase
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> Obter(
         [FromQuery] GetCategoriaRequestDto requestDto)
     {
+        var userId = HttpContext.User.GetUserId();
         var userRequest = new GetCategoriaRequestDto
         {
-            UserId = HttpContext.User.GetUserId(),
             Skip = requestDto.Skip,
             Take = requestDto.Take
         };
 
-        return await _service.ObterCategorias(userRequest);
+        return await _service.ObterCategorias(userRequest, userId);
     }
 
     [Authorize(nameof(FinActionsPermissions.CategoriaConsultar))]
@@ -50,13 +48,14 @@ public class CategoriaController : ControllerBase
     [HttpPost]
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(
         [FromBody] PostCategoriaRequestDto categoriaRequestDto)
-        => await _service.Insert(categoriaRequestDto with { UserId = HttpContext.User.GetUserId() });
+        => await _service.Insert(categoriaRequestDto, HttpContext.User.GetUserId());
 
     [Authorize(nameof(FinActionsPermissions.CategoriaEditar))]
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(
-        [FromBody] PostCategoriaRequestDto categoriaRequestDto)
-        => await _service.Update(categoriaRequestDto with { UserId = HttpContext.User.GetUserId() });
+        [FromBody] PostCategoriaRequestDto categoriaRequestDto, 
+        [FromRoute][Required] Guid id)
+        => await _service.Update(categoriaRequestDto, HttpContext.User.GetUserId(), id);
 
     [Authorize(nameof(FinActionsPermissions.CategoriaRemover))]
     [HttpDelete("{id:guid}")]
