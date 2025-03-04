@@ -7,6 +7,7 @@ using FinActions.Infrastructure.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using FinActions.Domain.Categorias;
+using FinActions.Application.Validations.Categoria;
 
 namespace FinActions.Application.Categorias.Services;
 
@@ -26,6 +27,11 @@ public class CategoriaService : ICategoriaService
     // validação de campos faço depois
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
+        var validation = new CategoriaValidationService(categoriaRequestDto, "Erro de validaçao da request de categorias");
+        var validationResult = validation.Validate();
+        if (!validation.IsValid)
+            return TypedResults.Problem(validationResult);
+
         var query = _context.Categorias
                         .AsNoTracking()
                         .Where(x => x.UserId == userId && !x.IsDeleted);
@@ -67,12 +73,12 @@ public class CategoriaService : ICategoriaService
         var mappedEntity = _mapper.Map<PostCategoriaRequestDto, Categoria>(categoriaRequestDto);
         mappedEntity.UserId = userId;
 
-        var dbEntity = await _context.Categorias.FirstOrDefaultAsync(x => x.Nome == categoriaRequestDto.Nome 
+        var dbEntity = await _context.Categorias.FirstOrDefaultAsync(x => x.Nome == categoriaRequestDto.Nome
                                                     && x.UserId == userId);
 
         if (dbEntity is not null && !dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Este nome de categoria já existe", 
-                                        title: "Erro ao inserir categoria", 
+            return TypedResults.Problem(detail: "Este nome de categoria já existe",
+                                        title: "Erro ao inserir categoria",
                                         statusCode: StatusCodes.Status400BadRequest);
 
         var addedEntity = _context.Add(mappedEntity).Entity;
@@ -89,8 +95,8 @@ public class CategoriaService : ICategoriaService
         var dbEntity = await _context.Categorias.FindAsync(id, userId);
 
         if (dbEntity is null || dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Esta categoria não existe", 
-                                        title: "Erro ao atualizar categoria", 
+            return TypedResults.Problem(detail: "Esta categoria não existe",
+                                        title: "Erro ao atualizar categoria",
                                         statusCode: StatusCodes.Status404NotFound);
 
         dbEntity.Nome = categoriaRequestDto.Nome;
@@ -107,8 +113,8 @@ public class CategoriaService : ICategoriaService
         var dbEntity = await _context.Categorias.FindAsync(categoriaId, userId);
 
         if (dbEntity is null || dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Esta categoria não existe", 
-                                        title: "Erro ao excluir categoria", 
+            return TypedResults.Problem(detail: "Esta categoria não existe",
+                                        title: "Erro ao excluir categoria",
                                         statusCode: StatusCodes.Status404NotFound);
 
         dbEntity.IsDeleted = true;
