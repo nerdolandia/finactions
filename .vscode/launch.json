@@ -7,9 +7,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/api/src/FinActions.DbMigrator/bin/Debug/net9.0/FinActions.DbMigrator.dll",
+            "program": "${workspaceFolder}/src/FinActions.DbMigrator/bin/Debug/net9.0/FinActions.DbMigrator.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/api/src/FinActions.DbMigrator",
+            "cwd": "${workspaceFolder}/src/FinActions.DbMigrator",
             "stopAtEntry": false,
             "console": "internalConsole"
         },
@@ -22,9 +22,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/api/src/FinActions.Api.Host/bin/Debug/net9.0/FinActions.Api.Host.dll",
+            "program": "${workspaceFolder}/src/FinActions.Api.Host/bin/Debug/net9.0/FinActions.Api.Host.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/api/src/FinActions.Api.Host",
+            "cwd": "${workspaceFolder}/src/FinActions.Api.Host",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
