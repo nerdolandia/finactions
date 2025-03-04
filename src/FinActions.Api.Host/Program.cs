@@ -1,6 +1,7 @@
 using FinActions.Api.Host.Extensions;
 using FinActions.Api.Host.OpenApi;
 using FinActions.Application;
+using FinActions.Application.Exceptions;
 using Serilog;
 
 Console.WriteLine("Starting FinActions.Api.Host");
@@ -17,6 +18,8 @@ builder.Services
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
     })
+    .AddProblemDetails()
+    .AddExceptionHandler<GlobalExceptionHandler>()
     .AddControllers();
 
 var app = builder.Build();
@@ -32,6 +35,9 @@ app.UseSwaggerUI(x =>
 
 app.UseCors(x => { x.AllowAnyHeader(); x.AllowAnyOrigin(); x.AllowAnyMethod(); });
 
+app.UseExceptionHandler();
+
+app.UseStatusCodePages();
 
 app.UseAuthentication();
 
