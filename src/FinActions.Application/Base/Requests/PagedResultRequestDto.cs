@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinActions.Application.Base.Requests;
 
-public abstract class PagedResultRequestDto
+public abstract record PagedResultRequestDto
 {
     [Range(0, int.MaxValue)]
-    public int Skip { get; set; }
-    public int Take { get; set; } = 20;
+    public int Skip { get; init; }
+    public int Take { get; init; } = 20;
 }

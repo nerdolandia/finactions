@@ -10,8 +10,7 @@ using FinActions.Domain.Categorias;
 
 namespace FinActions.Application.Categorias.Services;
 
-// TODO: Escrever mensagem de erros mais claras, sempre retornando o status code e as mensagens com o TypedResults.Problem
-// Se basear no retorno da linha 61 da classe IdentityService
+
 public class CategoriaService : ICategoriaService
 {
     private readonly FinActionsDbContext _context;
@@ -24,11 +23,12 @@ public class CategoriaService : ICategoriaService
     }
 
     // TODO: Validar se o tamanho do nome da categoria procurada não é maior que 150 caracteres
-    public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto)
+    // validação de campos faço depois
+    public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
         var query = _context.Categorias
                         .AsNoTracking()
-                        .Where(x => x.UserId == categoriaRequestDto.UserId && !x.IsDeleted);
+                        .Where(x => x.UserId == userId && !x.IsDeleted);
 
         if (!string.IsNullOrEmpty(categoriaRequestDto.Nome))
         {
@@ -62,28 +62,40 @@ public class CategoriaService : ICategoriaService
 
         return TypedResults.Ok(_mapper.Map<Categoria, CategoriaResponseDto>(dbEntity));
     }
-    // TODO: Validar se já existe uma categoria com esse nome, devido ao indíce uníco que criamos
-    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto)
+    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
         var mappedEntity = _mapper.Map<PostCategoriaRequestDto, Categoria>(categoriaRequestDto);
+        mappedEntity.UserId = userId;
 
-        var dbEntity = _context.Categorias.Add(mappedEntity).Entity;
+        var dbEntity = await _context.Categorias.FirstOrDefaultAsync(x => x.Nome == categoriaRequestDto.Nome 
+                                                    && x.UserId == userId);
 
+        if (dbEntity is not null && !dbEntity.IsDeleted)
+            return TypedResults.Problem(detail: "Este nome de categoria já existe", 
+                                        title: "Erro ao inserir categoria", 
+                                        statusCode: StatusCodes.Status400BadRequest);
+
+        var addedEntity = _context.Add(mappedEntity).Entity;
         await _context.SaveChangesAsync();
-        var mappedResult = _mapper.Map<Categoria, CategoriaResponseDto>(dbEntity);
+        var mappedResult = _mapper.Map<Categoria, CategoriaResponseDto>(addedEntity);
 
         return TypedResults.Ok(mappedResult);
     }
 
-    // TODO: Validar se já existe uma categoria com esse nome, devido ao indíce uníco que criamos, 
-    // também é necessário validar se a entidade existe no banco, então vc não nvai poder dar map direto nela
-    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto)
+    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto, Guid userId, Guid id)
     {
         var mappedEntity = _mapper.Map<PostCategoriaRequestDto, Categoria>(categoriaRequestDto);
 
-        var dbEntity = _context.Categorias.Update(mappedEntity).Entity;
+        var dbEntity = await _context.Categorias.FindAsync(id, userId);
 
-        await _context.SaveChangesAsync();
+        if (dbEntity is null || dbEntity.IsDeleted)
+            return TypedResults.Problem(detail: "Esta categoria não existe", 
+                                        title: "Erro ao atualizar categoria", 
+                                        statusCode: StatusCodes.Status404NotFound);
+
+        dbEntity.Nome = categoriaRequestDto.Nome;
+
+        var saveResults = await _context.SaveChangesAsync();
 
         var mappedResults = _mapper.Map<Categoria, CategoriaResponseDto>(dbEntity);
 
@@ -92,15 +104,12 @@ public class CategoriaService : ICategoriaService
 
     public async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid categoriaId, Guid userId)
     {
-        var dbEntity = await _context.Categorias
-                                .Where(x => x.UserId == userId
-                                        && !x.IsDeleted
-                                        && x.Id == categoriaId)
-                                .FirstOrDefaultAsync();
-        if (dbEntity is null)
-        {
-            return TypedResults.Problem(statusCode: StatusCodes.Status404NotFound);
-        }
+        var dbEntity = await _context.Categorias.FindAsync(categoriaId, userId);
+
+        if (dbEntity is null || dbEntity.IsDeleted)
+            return TypedResults.Problem(detail: "Esta categoria não existe", 
+                                        title: "Erro ao excluir categoria", 
+                                        statusCode: StatusCodes.Status404NotFound);
 
         dbEntity.IsDeleted = true;
         await _context.SaveChangesAsync();

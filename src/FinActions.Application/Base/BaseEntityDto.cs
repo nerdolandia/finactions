@@ -1,13 +1,8 @@
-using System.Text.Json.Serialization;
+namespace FinActions.Application.Base;
 
-namespace FinActions.Domain.Base;
-
-public abstract class BaseEntityDto
+public abstract record BaseEntityDto
 {
-    public Guid Id { get; set; }
-    public DateTimeOffset? DataModificacao { get; set; }
-    public DateTimeOffset DataCriacao { get; set; }
-
-    [JsonIgnore]
-    public bool IsDeleted { get; set; }
+     Guid Id { get; init; }
+     DateTimeOffset? DataModificacao { get; init; }
+     DateTimeOffset DataCriacao { get; init; }
 }
