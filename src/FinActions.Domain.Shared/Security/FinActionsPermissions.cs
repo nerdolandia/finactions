@@ -27,5 +27,14 @@ public enum FinActionsPermissions
     [Display(Name = "Editar Contas Bancárias")]
     ContaBancariaEditar,
     [Display(Name = "Remover Contas Bancárias")]
-    ContaBancariaRemover
+    ContaBancariaRemover,
+
+    [Display(Name = "Consultar Movimentações")]
+    MovimentacaoConsultar,
+    [Display(Name = "Criar Movimentações")]
+    MovimentacaoCriar,
+    [Display(Name = "Editar Movimentações")]
+    MovimentacaoEditar,
+    [Display(Name = "Remover Movimentações")]
+    MovimentacaoRemover
 }

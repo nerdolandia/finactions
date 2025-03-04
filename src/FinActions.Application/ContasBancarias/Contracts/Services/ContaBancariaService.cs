@@ -105,7 +105,7 @@ public sealed class ContaBancariaService : IContaBancariaService
         }
 
         var count = await query.Select(x => x.Id).CountAsync();
-        var dbEntities = await query.ToListAsync();
+        var dbEntities = await query.Skip(getRequest.Skip).Take(getRequest.Take).ToListAsync();
 
         var result = new PagedResultDto<ContaBancariaResponseDto>
         {
