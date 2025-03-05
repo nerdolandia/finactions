@@ -27,9 +27,9 @@ public class CategoriaService : ICategoriaService
 
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
-        _validator.ValidatorModel(categoriaRequestDto);
-        var validationResult = _validator.Validate();
-        if (!_validator.IsValid)
+        _validator.ModelToValidate(categoriaRequestDto);
+        var validationResult = _validator.ValidateModel(out bool isValid);
+        if (!isValid)
             return TypedResults.Problem(validationResult);
 
         var query = _context.Categorias
@@ -52,34 +52,44 @@ public class CategoriaService : ICategoriaService
 
         return TypedResults.Ok(result);
     }
-    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> ObterPorId(Guid categoriaId, Guid userId)
+    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> ObterPorId(IdsCategoriaRequestDto idsCategoriaRequestDto)
     {
         var dbEntity = await _context.Categorias
                                 .AsNoTracking()
-                                .Where(x => x.UserId == userId
-                                        && !x.IsDeleted
-                                        && x.Id == categoriaId)
+                                .Where(x => x.UserId == idsCategoriaRequestDto.userId
+                                        && x.Id == idsCategoriaRequestDto.id
+                                        && !x.IsDeleted)
                                 .FirstOrDefaultAsync();
 
-        if (dbEntity is null)
-        {
-            return TypedResults.Problem(statusCode: StatusCodes.Status404NotFound);
-        }
+        var validation = _validator.EntityToValidate(dbEntity);
 
         return TypedResults.Ok(_mapper.Map<Categoria, CategoriaResponseDto>(dbEntity));
     }
-    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto, Guid userId)
+    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto)
     {
+        var validationModel = _validator.ModelToValidate(categoriaRequestDto)
+                                        .ValidateModel(out var isModelValid);
+
+        if (!isModelValid)
+            return TypedResults.Problem(validationModel);
+
         var mappedEntity = _mapper.Map<PostCategoriaRequestDto, Categoria>(categoriaRequestDto);
-        mappedEntity.UserId = userId;
 
         var dbEntity = await _context.Categorias.FirstOrDefaultAsync(x => x.Nome == categoriaRequestDto.Nome
-                                                    && x.UserId == userId);
+                                                    && x.UserId == categoriaRequestDto.userId);
 
-        if (dbEntity is not null && !dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Este nome de categoria já existe",
-                                        title: "Erro ao inserir categoria",
-                                        statusCode: StatusCodes.Status400BadRequest);
+        var validationEntity = _validator.EntityToValidate(dbEntity)
+                                    .AddEntityValidation<Categoria>
+                                    (
+                                        x => x is not null && !x.IsDeleted,
+                                        CategoriaValidatorConsts.ErroCategoriaJaExiste,
+                                        nameof(CategoriaValidatorConsts.ErroCategoriaJaExiste),
+                                        StatusCodes.Status400BadRequest
+                                    )
+                                    .ValidateEntity(out var isValidEntity);
+
+        if (!isValidEntity)
+            return TypedResults.Problem(validationEntity);
 
         var addedEntity = _context.Add(mappedEntity).Entity;
         await _context.SaveChangesAsync();
@@ -88,16 +98,30 @@ public class CategoriaService : ICategoriaService
         return TypedResults.Ok(mappedResult);
     }
 
-    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto, Guid userId, Guid id)
+    public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto, Guid id)
     {
+        var validationModel = _validator.ModelToValidate(categoriaRequestDto)
+                                        .ValidateModel(out var isModelValid);
+
+        if (!isModelValid)
+            return TypedResults.Problem(validationModel);
+
         var mappedEntity = _mapper.Map<PostCategoriaRequestDto, Categoria>(categoriaRequestDto);
 
-        var dbEntity = await _context.Categorias.FindAsync(id, userId);
+        var dbEntity = await _context.Categorias.FindAsync(id, categoriaRequestDto.userId);
 
-        if (dbEntity is null || dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Esta categoria não existe",
-                                        title: "Erro ao atualizar categoria",
-                                        statusCode: StatusCodes.Status404NotFound);
+        var validationEntity = _validator.EntityToValidate(dbEntity)
+                                    .AddEntityValidation<Categoria>
+                                    (
+                                        x => x is null || x.IsDeleted,
+                                        CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
+                                        nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
+                                        StatusCodes.Status404NotFound
+                                    )
+                                    .ValidateEntity(out var isEntityValid);
+
+        if (!isEntityValid)
+            return TypedResults.Problem(validationEntity);
 
         dbEntity.Nome = categoriaRequestDto.Nome;
 
@@ -108,14 +132,22 @@ public class CategoriaService : ICategoriaService
         return TypedResults.Ok(mappedResults);
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid categoriaId, Guid userId)
+    public async Task<Results<NoContent, ProblemHttpResult>> Delete(IdsCategoriaRequestDto idsCategoriaRequestDto)
     {
-        var dbEntity = await _context.Categorias.FindAsync(categoriaId, userId);
+        var dbEntity = await _context.Categorias.FindAsync(idsCategoriaRequestDto.id, idsCategoriaRequestDto.userId);
 
-        if (dbEntity is null || dbEntity.IsDeleted)
-            return TypedResults.Problem(detail: "Esta categoria não existe",
-                                        title: "Erro ao excluir categoria",
-                                        statusCode: StatusCodes.Status404NotFound);
+        var validationEntity = _validator.EntityToValidate(dbEntity)
+                                    .AddEntityValidation<Categoria>
+                                    (
+                                        x => x is null || x.IsDeleted,
+                                        CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
+                                        nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
+                                        StatusCodes.Status404NotFound
+                                    )
+                                    .ValidateEntity(out var isEntityValid);
+
+        if (!isEntityValid)
+            return TypedResults.Problem(validationEntity);
 
         dbEntity.IsDeleted = true;
         await _context.SaveChangesAsync();

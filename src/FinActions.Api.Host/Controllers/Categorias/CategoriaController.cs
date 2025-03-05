@@ -42,24 +42,24 @@ public class CategoriaController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> ObterPorId(
         [FromRoute][Required] Guid id)
-        => await _service.ObterPorId(id, HttpContext.User.GetUserId());
+        => await _service.ObterPorId(new IdsCategoriaRequestDto(id, HttpContext.User.GetUserId()));
 
     [Authorize(nameof(FinActionsPermissions.CategoriaCriar))]
     [HttpPost]
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(
         [FromBody] PostCategoriaRequestDto categoriaRequestDto)
-        => await _service.Insert(categoriaRequestDto, HttpContext.User.GetUserId());
+        => await _service.Insert(categoriaRequestDto with { userId = HttpContext.User.GetUserId()});
 
     [Authorize(nameof(FinActionsPermissions.CategoriaEditar))]
     [HttpPut("{id:guid}")]
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(
         [FromBody] PostCategoriaRequestDto categoriaRequestDto, 
         [FromRoute][Required] Guid id)
-        => await _service.Update(categoriaRequestDto, HttpContext.User.GetUserId(), id);
+        => await _service.Update(categoriaRequestDto with {userId= HttpContext.User.GetUserId()}, id);
 
     [Authorize(nameof(FinActionsPermissions.CategoriaRemover))]
     [HttpDelete("{id:guid}")]
     public async Task<Results<NoContent, ProblemHttpResult>> Delete(
         [FromRoute][Required] Guid id)
-        => await _service.Delete(id, HttpContext.User.GetUserId());
+        => await _service.Delete(new IdsCategoriaRequestDto(id, HttpContext.User.GetUserId()));
 }

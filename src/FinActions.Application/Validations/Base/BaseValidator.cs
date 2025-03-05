@@ -4,39 +4,78 @@ using Microsoft.AspNetCore.Http;
 
 namespace FinActions.Application.Validations.Base;
 
-public abstract class BaseValidator 
+public abstract class BaseValidator : IBaseValidator
 {
-    public bool IsValid { get; set; }
-    private ValidationModel _validationModel { get; set; }
-    private object _validationObject { get; set; }
+    private bool _isValid { get; set; }
+    protected private object _validationObject { get; set; }
+    protected private object _validationEntity { get; set; }
+    protected abstract string ModelValidationTitle { get; init; }
+    protected abstract string EntityValidationTitle { get; init; }
+    private ModelValidationDto _modelValidationDto = new();
+    private EntityValidationDto _entityValidationDto { get; set; }
 
-    public virtual void ValidatorModel(object validationObject, string title)
+    public virtual IBaseValidator ModelToValidate(object validationObject)
     {
-        _validationModel.title = title;
         _validationObject = validationObject;
+        return this;
+    }
+    
+    public virtual IBaseValidator EntityToValidate(object validationEntity)
+    {
+        _validationEntity = validationEntity;
+        return this;
     }
 
-    public virtual BaseValidator AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
+    public IBaseValidator AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
     {
         if (!predicate((T)_validationObject))
         {
-            IsValid = false;
+            _isValid = false;
 
-            if (_validationModel.errors.ContainsKey(campo))
-                _validationModel.errors[campo].Append(mensagemErro);
+            if (_modelValidationDto.errors.ContainsKey(campo))
+                _modelValidationDto.errors[campo].Append(mensagemErro);
             else
-                _validationModel.errors.Add(campo, new string[] { mensagemErro });
+                _modelValidationDto.errors.Add(campo, new string[] { mensagemErro });
         }
 
         return this;
     }
 
-    public virtual ProblemDetails Validate()
-        => new ValidationProblemDetails
+    public IBaseValidator AddEntityValidation<T>(Predicate<T> predicate, string mensagemErro, string type, int statusCode)
+    {
+        if (!predicate((T)_validationEntity))
         {
-            Title = _validationModel.title,
+            _isValid = false;
+            _entityValidationDto = new EntityValidationDto(EntityValidationTitle, mensagemErro, type, statusCode);
+        }
+
+        return this;
+    }
+
+
+    public virtual ProblemDetails ValidateModel(out bool isValid)
+    {
+        isValid = _isValid;
+        return new ValidationProblemDetails
+        {
+            Title = _modelValidationDto.title,
             Status = StatusCodes.Status400BadRequest,
-            Detail = $"Erro(s) de validação(ões) em {_validationModel.errors.Count} itens",
-            Errors = _validationModel.errors
+            Detail = $"Erro(s) de validação(ões) em {_modelValidationDto.errors.Count} itens",
+            Errors = _modelValidationDto.errors
         };
+
+    }
+
+    public ProblemDetails ValidateEntity(out bool isValid)
+    {
+        isValid = _isValid;
+        return new ProblemDetails
+        {
+            Title = _entityValidationDto.title,
+            Detail = _entityValidationDto.description,
+            Type = _entityValidationDto.type,
+            Status = _entityValidationDto.statusCode
+        };
+
+    }
 }

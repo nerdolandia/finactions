@@ -5,43 +5,47 @@ namespace FinActions.Application.Validations.Categoria;
 
 public class CategoriaValidator : BaseValidator, ICategoriaValidator
 {
-    private object _validationObject { get; set; }
-    private const string ErroTamanhoNome = "Número de caractéres para o nome da categoria ultrapassa os limites";
-    private const string ErroQuantidadeQuery = "Número de categorias escolhidas para filtro está zerada";
-    private const string TitleValidation = "Erro de validação da request de categorias";
+    protected override string ModelValidationTitle { get; init; } = "Erro de validação da request de categorias";
+    protected override string EntityValidationTitle { get; init; } = "Erro de validação do banco de dados";
 
-    public override void ValidatorModel(object validationObject, string title = TitleValidation)
+    public override IBaseValidator ModelToValidate(object validationObject)
     {
-        base.ValidatorModel(validationObject, title);
+        base.ModelToValidate(validationObject);
+        return this;
     }
 
-    public override ProblemDetails Validate()
+    public override IBaseValidator EntityToValidate(object validationEntity)
+    {
+        base.EntityToValidate(validationEntity);
+        return this;
+    }
+
+    public override ProblemDetails ValidateModel(out bool isValid)
     {
         if (_validationObject is GetCategoriaRequestDto getCategoriaRequest)
-        {
             ValidateGetRequest(getCategoriaRequest);
-        }
-        if (_validationObject is PostCategoriaRequestDto postCategoriaRequest)
-        {
+        else if (_validationObject is PostCategoriaRequestDto postCategoriaRequest)
             ValidatePostRequest(postCategoriaRequest);
-        }
-        return base.Validate();
+
+        return base.ValidateModel(out isValid);
     }
 
     private void ValidateGetRequest(GetCategoriaRequestDto requestObject)
     {
         base.AddValidation<GetCategoriaRequestDto>(x => x.Nome.Length > 150,
-                                                    ErroTamanhoNome,
-                                                    nameof(requestObject.Nome))
-            .AddValidation<GetCategoriaRequestDto>(x => x.Take == 0,
-                                                    ErroQuantidadeQuery,
+                                                    CategoriaValidatorConsts.ErroCategoriaJaExiste,
+                                                    nameof(requestObject.Nome));
+        base.AddValidation<GetCategoriaRequestDto>(x => x.Take == 0,
+                                                    CategoriaValidatorConsts.ErroQuantidadeQuery,
                                                     nameof(requestObject.Take));
     }
+
 
     private void ValidatePostRequest(PostCategoriaRequestDto requestObject)
     {
         base.AddValidation<PostCategoriaRequestDto>(x => x.Nome.Length > 150,
-                                                    ErroTamanhoNome,
+                                                    CategoriaValidatorConsts.ErroTamanhoNome,
                                                     nameof(requestObject.Nome));
+
     }
 }
