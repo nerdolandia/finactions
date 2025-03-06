@@ -1,5 +1,5 @@
 namespace FinActions.Application.Validations.Categoria;
-public struct CategoriaValidatorConsts
+public static class CategoriaValidatorConsts
 {
     public const string ErroTamanhoNome = "Número de caractéres para o nome da categoria ultrapassa os limites";
     public const string ErroQuantidadeQuery = "Número de categorias escolhidas para filtro está zerada";
