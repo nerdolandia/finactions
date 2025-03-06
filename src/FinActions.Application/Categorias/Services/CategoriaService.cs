@@ -27,7 +27,7 @@ public class CategoriaService : ICategoriaService
 
     public async Task<Results<Ok<PagedResultDto<CategoriaResponseDto>>, ProblemHttpResult>> ObterCategorias(GetCategoriaRequestDto categoriaRequestDto, Guid userId)
     {
-        _validator.ModelToValidate(categoriaRequestDto);
+        _validator.ModelObject(categoriaRequestDto);
         var validationResult = _validator.ValidateModel(out bool isValid);
         if (!isValid)
             return TypedResults.Problem(validationResult);
@@ -56,18 +56,26 @@ public class CategoriaService : ICategoriaService
     {
         var dbEntity = await _context.Categorias
                                 .AsNoTracking()
-                                .Where(x => x.UserId == idsCategoriaRequestDto.userId
+                                .Where
+                                (
+                                    x => x.UserId == idsCategoriaRequestDto.userId
                                         && x.Id == idsCategoriaRequestDto.id
-                                        && !x.IsDeleted)
+                                        && !x.IsDeleted
+                                )
                                 .FirstOrDefaultAsync();
 
-        var validation = _validator.EntityToValidate(dbEntity);
+        var validation = _validator.DbEntityObject(dbEntity)
+                                    .ApplyGetByIdRules()
+                                    .ValidateEntity(out var isValid);
+
+        if (!isValid)
+            return TypedResults.Problem(validation);
 
         return TypedResults.Ok(_mapper.Map<Categoria, CategoriaResponseDto>(dbEntity));
     }
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Insert(PostCategoriaRequestDto categoriaRequestDto)
     {
-        var validationModel = _validator.ModelToValidate(categoriaRequestDto)
+        var validationModel = _validator.ModelObject(categoriaRequestDto)
                                         .ValidateModel(out var isModelValid);
 
         if (!isModelValid)
@@ -78,15 +86,9 @@ public class CategoriaService : ICategoriaService
         var dbEntity = await _context.Categorias.FirstOrDefaultAsync(x => x.Nome == categoriaRequestDto.Nome
                                                     && x.UserId == categoriaRequestDto.userId);
 
-        var validationEntity = _validator.EntityToValidate(dbEntity)
-                                    .AddEntityValidation<Categoria>
-                                    (
-                                        x => x is not null && !x.IsDeleted,
-                                        CategoriaValidatorConsts.ErroCategoriaJaExiste,
-                                        nameof(CategoriaValidatorConsts.ErroCategoriaJaExiste),
-                                        StatusCodes.Status400BadRequest
-                                    )
-                                    .ValidateEntity(out var isValidEntity);
+        var validationEntity = _validator.DbEntityObject(dbEntity)
+                                            .ApplyInsertRules()
+                                            .ValidateEntity(out var isValidEntity);
 
         if (!isValidEntity)
             return TypedResults.Problem(validationEntity);
@@ -100,7 +102,7 @@ public class CategoriaService : ICategoriaService
 
     public async Task<Results<Ok<CategoriaResponseDto>, ProblemHttpResult>> Update(PostCategoriaRequestDto categoriaRequestDto, Guid id)
     {
-        var validationModel = _validator.ModelToValidate(categoriaRequestDto)
+        var validationModel = _validator.ModelObject(categoriaRequestDto)
                                         .ValidateModel(out var isModelValid);
 
         if (!isModelValid)
@@ -110,15 +112,9 @@ public class CategoriaService : ICategoriaService
 
         var dbEntity = await _context.Categorias.FindAsync(id, categoriaRequestDto.userId);
 
-        var validationEntity = _validator.EntityToValidate(dbEntity)
-                                    .AddEntityValidation<Categoria>
-                                    (
-                                        x => x is null || x.IsDeleted,
-                                        CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
-                                        nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
-                                        StatusCodes.Status404NotFound
-                                    )
-                                    .ValidateEntity(out var isEntityValid);
+        var validationEntity = _validator.DbEntityObject(dbEntity)
+                                            .ApplyUpdateRules()
+                                            .ValidateEntity(out var isEntityValid);
 
         if (!isEntityValid)
             return TypedResults.Problem(validationEntity);
@@ -136,15 +132,9 @@ public class CategoriaService : ICategoriaService
     {
         var dbEntity = await _context.Categorias.FindAsync(idsCategoriaRequestDto.id, idsCategoriaRequestDto.userId);
 
-        var validationEntity = _validator.EntityToValidate(dbEntity)
-                                    .AddEntityValidation<Categoria>
-                                    (
-                                        x => x is null || x.IsDeleted,
-                                        CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
-                                        nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
-                                        StatusCodes.Status404NotFound
-                                    )
-                                    .ValidateEntity(out var isEntityValid);
+        var validationEntity = _validator.DbEntityObject(dbEntity)
+                                            .ApplyDeleteRules()
+                                            .ValidateEntity(out var isEntityValid);
 
         if (!isEntityValid)
             return TypedResults.Problem(validationEntity);

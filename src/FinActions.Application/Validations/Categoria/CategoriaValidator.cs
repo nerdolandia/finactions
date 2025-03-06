@@ -1,6 +1,8 @@
 using FinActions.Application.Validations.Base;
 using Microsoft.AspNetCore.Mvc;
 using FinActions.Application.Categorias.Requests;
+using Microsoft.AspNetCore.Http;
+using DomainModel = FinActions.Domain.Categorias;
 namespace FinActions.Application.Validations.Categoria;
 
 public class CategoriaValidator : BaseValidator, ICategoriaValidator
@@ -8,15 +10,15 @@ public class CategoriaValidator : BaseValidator, ICategoriaValidator
     protected override string ModelValidationTitle { get; init; } = "Erro de validação da request de categorias";
     protected override string EntityValidationTitle { get; init; } = "Erro de validação do banco de dados";
 
-    public override IBaseValidator ModelToValidate(object validationObject)
+    public ICategoriaValidator ModelObject(object validationObject)
     {
-        base.ModelToValidate(validationObject);
+        _validationObject = validationObject;
         return this;
     }
 
-    public override IBaseValidator EntityToValidate(object validationEntity)
+    public ICategoriaValidator DbEntityObject(object validationDbEntity)
     {
-        base.EntityToValidate(validationEntity);
+        _validationEntity = validationDbEntity;
         return this;
     }
 
@@ -32,14 +34,19 @@ public class CategoriaValidator : BaseValidator, ICategoriaValidator
 
     private void ValidateGetRequest(GetCategoriaRequestDto requestObject)
     {
-        base.AddValidation<GetCategoriaRequestDto>(x => x.Nome.Length > 150,
-                                                    CategoriaValidatorConsts.ErroCategoriaJaExiste,
-                                                    nameof(requestObject.Nome));
-        base.AddValidation<GetCategoriaRequestDto>(x => x.Take == 0,
-                                                    CategoriaValidatorConsts.ErroQuantidadeQuery,
-                                                    nameof(requestObject.Take));
+        AddValidation<GetCategoriaRequestDto>
+            (
+                x => x.Nome.Length > 150,
+                CategoriaValidatorConsts.ErroCategoriaJaExiste,
+                nameof(requestObject.Nome)
+            )
+        .AddValidation<GetCategoriaRequestDto>
+        (
+            x => x.Take == 0,
+            CategoriaValidatorConsts.ErroQuantidadeQuery,
+            nameof(requestObject.Take)
+        );
     }
-
 
     private void ValidatePostRequest(PostCategoriaRequestDto requestObject)
     {
@@ -47,5 +54,53 @@ public class CategoriaValidator : BaseValidator, ICategoriaValidator
                                                     CategoriaValidatorConsts.ErroTamanhoNome,
                                                     nameof(requestObject.Nome));
 
+    }
+
+    public ICategoriaValidator ApplyInsertRules()
+        => AddEntityValidation<DomainModel.Categoria>
+            (
+                x => x is not null && !x.IsDeleted,
+                CategoriaValidatorConsts.ErroCategoriaJaExiste,
+                nameof(CategoriaValidatorConsts.ErroCategoriaJaExiste),
+                StatusCodes.Status400BadRequest
+            );
+
+    public ICategoriaValidator ApplyGetByIdRules()
+        => AddEntityValidation<DomainModel.Categoria>
+            (
+                x => x is null,
+                CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
+                nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
+                StatusCodes.Status404NotFound
+            );
+
+    public ICategoriaValidator ApplyUpdateRules()
+        => AddEntityValidation<DomainModel.Categoria>
+             (
+                 x => x is null || x.IsDeleted,
+                 CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
+                 nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
+                 StatusCodes.Status404NotFound
+             );
+
+    public ICategoriaValidator ApplyDeleteRules()
+        => AddEntityValidation<DomainModel.Categoria>
+            (
+                x => x is null || x.IsDeleted,
+                CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria,
+                nameof(CategoriaValidatorConsts.ErroNaoFoiEncontradoCategoria),
+                StatusCodes.Status404NotFound
+            );
+
+    private protected override CategoriaValidator AddEntityValidation<T>(Predicate<T> predicate, string mensagemErro, string type, int statusCode)
+    {
+        base.AddEntityValidation(predicate, mensagemErro, type, statusCode);
+        return this;
+    }
+
+    private protected override CategoriaValidator AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
+    {
+        base.AddValidation(predicate, mensagemErro, campo);
+        return this;
     }
 }

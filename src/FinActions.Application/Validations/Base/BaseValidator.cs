@@ -14,19 +14,8 @@ public abstract class BaseValidator : IBaseValidator
     private ModelValidationDto _modelValidationDto = new();
     private EntityValidationDto _entityValidationDto { get; set; }
 
-    public virtual IBaseValidator ModelToValidate(object validationObject)
-    {
-        _validationObject = validationObject;
-        return this;
-    }
-    
-    public virtual IBaseValidator EntityToValidate(object validationEntity)
-    {
-        _validationEntity = validationEntity;
-        return this;
-    }
 
-    public IBaseValidator AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
+    protected private virtual IBaseValidator AddValidation<T>(Predicate<T> predicate, string mensagemErro, string campo = "")
     {
         if (!predicate((T)_validationObject))
         {
@@ -41,7 +30,7 @@ public abstract class BaseValidator : IBaseValidator
         return this;
     }
 
-    public IBaseValidator AddEntityValidation<T>(Predicate<T> predicate, string mensagemErro, string type, int statusCode)
+    protected private virtual IBaseValidator AddEntityValidation<T>(Predicate<T> predicate, string mensagemErro, string type, int statusCode)
     {
         if (!predicate((T)_validationEntity))
         {
