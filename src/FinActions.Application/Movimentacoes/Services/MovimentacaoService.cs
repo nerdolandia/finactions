@@ -46,6 +46,7 @@ public sealed class MovimentacaoService : IMovimentacaoService
         }
 
         Movimentacao.IsDeleted = true;
+        Movimentacao.DataModificacao = DateTimeOffset.Now;
         await _context.SaveChangesAsync();
 
         return TypedResults.NoContent();
@@ -256,6 +257,7 @@ public sealed class MovimentacaoService : IMovimentacaoService
         movimentacao.DataMovimentacao = updateRequest.DataMovimentacao;
         movimentacao.ContaBancariaId = updateRequest.ContaBancariaId;
         movimentacao.CategoriaId = updateRequest.CategoriaId;
+        movimentacao.DataModificacao = DateTimeOffset.Now;
         await _context.SaveChangesAsync();
 
         return TypedResults.Ok(_mapper.Map<Movimentacao, MovimentacaoResponseDto>(movimentacao));

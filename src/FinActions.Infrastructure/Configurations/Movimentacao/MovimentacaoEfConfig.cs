@@ -1,5 +1,4 @@
 using FinActions.Domain.Movimentacoes;
-using FinActions.Domain.Shared.Movimentacoes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,12 +24,8 @@ public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
         builder.Property(x => x.DataCriacao)
                 .HasDefaultValueSql("NOW()");
 
-        builder.Property(x => x.DataModificacao)
-                .ValueGeneratedOnUpdate()
-                .HasDefaultValueSql("NOW()");
-
         builder.Property(x => x.Descricao)
-                .HasMaxLength(MovimentacaoConsts.DescricaoMaxLength)
+                .HasMaxLength(300)
                 .IsRequired();
 
         builder.Property(x => x.TipoMovimentacao)

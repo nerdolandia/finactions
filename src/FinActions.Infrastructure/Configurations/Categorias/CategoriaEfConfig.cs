@@ -14,10 +14,6 @@ public class CategoriaEfConfig : IEntityTypeConfiguration<Categoria>
                 .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
-        builder.Property(x => x.DataModificacao)
-                .ValueGeneratedOnUpdate()
-                .HasDefaultValueSql("NOW()");
-
         builder.Property(x => x.Id)
                 .IsRequired();
 
