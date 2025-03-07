@@ -2,7 +2,6 @@ using FinActions.Api.Host.Extensions;
 using FinActions.Api.Host.OpenApi;
 using FinActions.Application;
 using FinActions.Application.Exceptions;
-using Serilog;
 
 Console.WriteLine("Starting FinActions.Api.Host");
 var builder = WebApplication.CreateBuilder(args);

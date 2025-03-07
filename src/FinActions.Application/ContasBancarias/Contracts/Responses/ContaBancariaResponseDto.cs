@@ -1,4 +1,4 @@
-using FinActions.Application.Base;
+using FinActions.Application.Base.Models;
 using FinActions.Domain.ContasBancarias;
 
 namespace FinActions.Application.ContasBancarias.Contracts.Responses;
