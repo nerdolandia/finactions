@@ -45,6 +45,7 @@ public sealed class ContaBancariaService : IContaBancariaService
         }
 
         contaBancaria.IsDeleted = true;
+        contaBancaria.DataModificacao = DateTimeOffset.Now;
         await _context.SaveChangesAsync();
 
         return TypedResults.NoContent();
@@ -175,6 +176,7 @@ public sealed class ContaBancariaService : IContaBancariaService
 
         contaBancaria.Nome = updateRequest.Nome;
         contaBancaria.TipoConta = updateRequest.TipoConta;
+        contaBancaria.DataModificacao = DateTimeOffset.Now;
         await _context.SaveChangesAsync();
 
         return TypedResults.Ok(_mapper.Map<ContaBancaria, ContaBancariaResponseDto>(contaBancaria));

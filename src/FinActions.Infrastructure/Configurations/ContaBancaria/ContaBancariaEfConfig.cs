@@ -13,10 +13,6 @@ public class ContaBancariaEfConfig : IEntityTypeConfiguration<ContaBancaria>
         builder.Property(x => x.DataCriacao)
                 .HasDefaultValueSql("NOW()");
 
-        builder.Property(x => x.DataModificacao)
-                .ValueGeneratedOnUpdate()
-                .HasDefaultValueSql("NOW()");
-
         builder.Property(x => x.Nome)
                 .HasMaxLength(150)
                 .IsRequired();

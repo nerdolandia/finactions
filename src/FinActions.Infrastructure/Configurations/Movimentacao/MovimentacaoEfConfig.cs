@@ -25,10 +25,6 @@ public class MovimentacaoEfConfig : IEntityTypeConfiguration<Movimentacao>
         builder.Property(x => x.DataCriacao)
                 .HasDefaultValueSql("NOW()");
 
-        builder.Property(x => x.DataModificacao)
-                .ValueGeneratedOnUpdate()
-                .HasDefaultValueSql("NOW()");
-
         builder.Property(x => x.Descricao)
                 .HasMaxLength(MovimentacaoConsts.DescricaoMaxLength)
                 .IsRequired();

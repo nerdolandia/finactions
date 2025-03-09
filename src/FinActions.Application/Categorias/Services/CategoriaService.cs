@@ -120,6 +120,7 @@ public class CategoriaService : ICategoriaService
             return TypedResults.Problem(validationEntity);
 
         dbEntity.Nome = categoriaRequestDto.Nome;
+        dbEntity.DataModificacao = DateTimeOffset.Now;
 
         var saveResults = await _context.SaveChangesAsync();
 
@@ -140,6 +141,7 @@ public class CategoriaService : ICategoriaService
             return TypedResults.Problem(validationEntity);
 
         dbEntity.IsDeleted = true;
+        dbEntity.DataModificacao = DateTimeOffset.Now;
         await _context.SaveChangesAsync();
 
         return TypedResults.NoContent();

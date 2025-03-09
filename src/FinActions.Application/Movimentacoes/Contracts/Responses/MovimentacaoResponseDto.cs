@@ -1,8 +1,7 @@
-using FinActions.Application.Base;
 using FinActions.Application.Categorias.Responses;
 using FinActions.Application.ContasBancarias.Contracts.Responses;
-using FinActions.Domain.ContasBancarias;
 using FinActions.Domain.Movimentacoes;
+using FinActions.Application.Base.Models;
 
 namespace FinActions.Application.Movimentacoes.Contracts.Responses;
 
